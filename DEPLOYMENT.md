@@ -24,7 +24,7 @@ Set `VOICE_ENABLED=false` until the API database and cloud worker are ready. Def
 
 1. Authenticate the official CLI: `lk cloud auth`. Select the same Build project used by Vercel's LiveKit credentials.
 2. Set `BOOKING_API_URL=https://YOUR-PRODUCTION-DOMAIN/api` in `.env.production.local`. Run `node --import tsx tools/prepare-production.ts` again. The ignored `.data/deploy/agent.env` contains only worker settings and the shared secret.
-3. From the repository root, run `lk agent create --secrets-file="$PWD/.data/deploy/agent.env" apps/agent`. For later versions, run `lk agent deploy apps/agent`; use `lk agent update-secrets --secrets-file="$PWD/.data/deploy/agent.env" apps/agent` when settings change.
+3. From the repository root, run `lk agent create --region ap-south --secrets-file="$PWD/.data/deploy/agent.env" apps/agent`. For later versions, run `lk agent deploy apps/agent`; use `lk agent update-secrets --secrets-file="$PWD/.data/deploy/agent.env" apps/agent` when settings change.
 4. Keep the generated `apps/agent/livekit.toml` as deployment metadata. LiveKit injects its own `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`; do not upload development credentials as worker secrets.
 5. Check `lk agent status apps/agent`. Enable `VOICE_ENABLED=true` in Vercel production, redeploy, then test greeting, booking confirmation, rescheduling, and interruption on the public site. The browser allows 90 seconds for a cold receptionist to become ready.
 

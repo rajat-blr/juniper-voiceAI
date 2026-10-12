@@ -63,7 +63,8 @@ if (!process.argv.includes('--agent-only')) {
   await run(vercel, ['deploy', '--prod', '--yes', ...common]);
 }
 const health = await fetch(`${values.BOOKING_API_URL}/health`, { signal: AbortSignal.timeout(30000) });
-if (!health.ok) throw new Error('Production API health failed. Connect Neon DATABASE_URL before continuing. Voice remains disabled.');
+const healthBody = await health.json().catch(() => null) as { status?: string } | null;
+if (!health.ok || healthBody?.status !== 'ok') throw new Error('Production API health failed. Connect Neon DATABASE_URL before continuing. Voice remains disabled.');
 const livekitEnv = Object.fromEntries(['LIVEKIT_URL', 'LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET'].map((key) => [key, values[key]]));
 const workerDirectory = 'apps/agent';
 const workerSecrets = `--secrets-file=${resolve('.data/deploy/agent.env')}`;
@@ -73,7 +74,7 @@ if (existsSync(`${workerDirectory}/livekit.toml`)) {
   await run(livekit, ['--yes', 'agent', 'deploy', workerDirectory], undefined, livekitEnv);
 } else {
   console.log('Building and deploying the receptionist on LiveKit Cloud. This can take several minutes.');
-  await run(livekit, ['--yes', 'agent', 'create', workerSecrets, workerDirectory], undefined, livekitEnv);
+  await run(livekit, ['--yes', 'agent', 'create', '--region', 'ap-south', workerSecrets, workerDirectory], undefined, livekitEnv);
 }
 await run(livekit, ['agent', 'status', '--json', workerDirectory], undefined, livekitEnv);
 console.log('LiveKit deployment completed. Voice stays disabled until cloud status is verified.');
