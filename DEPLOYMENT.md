@@ -20,13 +20,13 @@ Set `VOICE_ENABLED=false` until the API database and cloud worker are ready. Def
 
 ## LiveKit Cloud
 
-The root `Dockerfile` packages only `apps/agent` code and pinned direct dependencies. `.dockerignore` excludes credentials, local database files, and development environments. The container runs as an unprivileged user and predownloads plugin assets.
+`apps/agent/Dockerfile` packages the Python worker and pinned direct dependencies. Its `.dockerignore` excludes credentials, local database files, and development environments. The container runs as an unprivileged user and predownloads plugin assets. The root Dockerfile also supports `docker build .`, but the LiveKit CLI must use the Python subdirectory to avoid detecting the root JavaScript application.
 
 1. Authenticate the official CLI: `lk cloud auth`. Select the same Build project used by Vercel's LiveKit credentials.
 2. Set `BOOKING_API_URL=https://YOUR-PRODUCTION-DOMAIN/api` in `.env.production.local`. Run `node --import tsx tools/prepare-production.ts` again. The ignored `.data/deploy/agent.env` contains only worker settings and the shared secret.
-3. From the repository root, run `lk agent create --secrets-file=.data/deploy/agent.env`. For later versions, run `lk agent deploy`; use `lk agent update-secrets --secrets-file=.data/deploy/agent.env` when settings change.
-4. Keep the generated `livekit.toml` as deployment metadata. LiveKit injects its own `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`; do not upload development credentials as worker secrets.
-5. Check `lk agent status`. Enable `VOICE_ENABLED=true` in Vercel production, redeploy, then test greeting, booking confirmation, rescheduling, and interruption on the public site. The browser allows 90 seconds for a cold receptionist to become ready.
+3. From the repository root, run `lk agent create --secrets-file="$PWD/.data/deploy/agent.env" apps/agent`. For later versions, run `lk agent deploy apps/agent`; use `lk agent update-secrets --secrets-file="$PWD/.data/deploy/agent.env" apps/agent` when settings change.
+4. Keep the generated `apps/agent/livekit.toml` as deployment metadata. LiveKit injects its own `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`; do not upload development credentials as worker secrets.
+5. Check `lk agent status apps/agent`. Enable `VOICE_ENABLED=true` in Vercel production, redeploy, then test greeting, booking confirmation, rescheduling, and interruption on the public site. The browser allows 90 seconds for a cold receptionist to become ready.
 
 Stop the local development worker before testing cloud voice on the same project and agent name. Otherwise either worker may receive the dispatch.
 
@@ -35,5 +35,7 @@ Stop the local development worker before testing cloud voice on the same project
 This workspace includes ignored official CLI installations and `npm run deploy:production`. Run it from a normal terminal after the Neon connection is saved and the real `BOOKING_API_URL` is set. It uploads allowlisted production settings through stdin, deploys the Vercel API with voice disabled, checks API health, then creates or updates the LiveKit Cloud worker using the private secret file. It preserves voice's disabled state until cloud health is verified. Provider logs remain in owner-only files under `.data/deploy`; inspect failures locally without sharing credentials.
 
 Use `npm run deploy:production -- --check` to validate private settings without network calls. CLI installations and account login are machine-local prerequisites, not committed dependencies.
+
+After the Vercel deployment and API health check have succeeded, `npm run deploy:production -- --agent-only` retries only worker deployment. It does not upload Vercel variables or rebuild that API.
 
 Official guides: [LiveKit agent deployment](https://docs.livekit.io/deploy/agents/), [worker secrets](https://docs.livekit.io/deploy/agents/secrets/), and [Vercel sensitive variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables).
