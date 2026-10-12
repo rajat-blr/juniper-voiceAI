@@ -14,3 +14,7 @@ __pycache__/
 *.pyc
 *.egg-info/
 test-results/
+.vercel
+
+# Keep product requirements documents local.
+*[Pp][Rr][Dd]*
