@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.data/
+.env*
+!.env.example
+!.env.production.example
+.vercel/
+.DS_Store
+*.pem
+*.key
+*.p12
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+test-results/

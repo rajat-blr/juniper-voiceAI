@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!apps/
+!apps/agent/
+!apps/agent/pyproject.toml
+!apps/agent/requirements-deploy.txt
+!apps/agent/src/
+!apps/agent/src/**
+**/__pycache__
+**/*.pyc
+**/.env*

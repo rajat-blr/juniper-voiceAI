@@ -1,0 +1,29 @@
+{
+  "runId": "first-controlled-run",
+  "setup": {
+    "stt": null,
+    "llm": null,
+    "tts": null,
+    "voice": null,
+    "browser": null,
+    "os": null,
+    "network": null
+  },
+  "scenarios": {
+    "book": { "status": "not_run", "method": "not_run" },
+    "correct_time": { "status": "not_run", "method": "not_run" },
+    "interrupt": { "status": "not_run", "method": "not_run" },
+    "early_confirmation": { "status": "not_run", "method": "not_run" },
+    "refresh_after_offer": { "status": "not_run", "method": "not_run" },
+    "refresh_after_selection": { "status": "not_run", "method": "not_run" },
+    "taken_selection": { "status": "not_run", "method": "not_run" },
+    "confirmed_request_not_sent": { "status": "not_run", "method": "not_run" },
+    "lost_response": { "status": "not_run", "method": "not_run" },
+    "reconnect_after_confirmation": { "status": "not_run", "method": "not_run" },
+    "reschedule": { "status": "not_run", "method": "not_run" },
+    "last_slot_conflict": { "status": "not_run", "method": "not_run" },
+    "misheard_detail": { "status": "not_run", "method": "not_run" },
+    "missing_worker": { "status": "not_run", "method": "not_run" },
+    "speech_failure": { "status": "not_run", "method": "not_run" }
+  }
+}
