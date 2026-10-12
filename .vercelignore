@@ -1,0 +1,9 @@
+.data/
+.env*
+.git/
+.venv/
+node_modules/
+apps/agent/
+apps/web/dist/
+**/__pycache__/
+**/*.pyc

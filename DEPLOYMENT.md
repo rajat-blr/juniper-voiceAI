@@ -30,4 +30,10 @@ The root `Dockerfile` packages only `apps/agent` code and pinned direct dependen
 
 Stop the local development worker before testing cloud voice on the same project and agent name. Otherwise either worker may receive the dispatch.
 
+## Prepared local deployment command
+
+This workspace includes ignored official CLI installations and `npm run deploy:production`. Run it from a normal terminal after the Neon connection is saved and the real `BOOKING_API_URL` is set. It uploads allowlisted production settings through stdin, deploys the Vercel API with voice disabled, checks API health, then creates or updates the LiveKit Cloud worker using the private secret file. It preserves voice's disabled state until cloud health is verified. Provider logs remain in owner-only files under `.data/deploy`; inspect failures locally without sharing credentials.
+
+Use `npm run deploy:production -- --check` to validate private settings without network calls. CLI installations and account login are machine-local prerequisites, not committed dependencies.
+
 Official guides: [LiveKit agent deployment](https://docs.livekit.io/deploy/agents/), [worker secrets](https://docs.livekit.io/deploy/agents/secrets/), and [Vercel sensitive variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables).

@@ -13,7 +13,8 @@
     "demo:report": "node --import tsx tools/demo-report.ts",
     "benchmark:api": "node --import tsx tools/benchmark-api.ts",
     "verify": "node --import tsx tools/verify-project.ts",
-    "db:migrate": "node --env-file-if-exists=.env.production.local --import tsx tools/migrate.ts"
+    "db:migrate": "node --env-file-if-exists=.env.production.local --import tsx tools/migrate.ts",
+    "deploy:production": "node --import tsx tools/deploy-production.ts"
   },
   "engines": { "node": "24.x" },
   "dependencies": {
