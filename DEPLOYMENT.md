@@ -15,7 +15,7 @@ Set `VOICE_ENABLED=false` until the API database and cloud worker are ready. Def
 1. Import `rajat-blr/juniper-voiceAI` into Vercel, using the repository root. `vercel.json` supplies build, output, routing, and Singapore function region settings.
 2. Create a Neon **Free** database in Singapore through Vercel Storage. Disable unused Neon Auth. Connect it only to this project's production environment. Use the pooled PostgreSQL connection string as `DATABASE_URL`; keep TLS enabled.
 3. Save production variables. Set the same production `AGENT_SHARED_SECRET` on both services.
-4. Run `npm run db:migrate` from a terminal that can reach Neon. It applies the idempotent initial schema once. Production requests do not run migrations. Do not reuse the local `.data/booking` files in deployment.
+4. Vercel production builds run `npm run db:migrate` before building the app, using the production `DATABASE_URL`. The schema migration is idempotent and adds authentication tables without removing existing bookings. Preview builds and production requests do not run migrations. For other hosting, run the migration before deploying. Do not reuse the local `.data/booking` files in deployment.
 5. Deploy Vercel. Verify `/api/health` and the manual booking, lookup, refresh, and rescheduling flows before enabling voice.
 
 ## LiveKit Cloud
