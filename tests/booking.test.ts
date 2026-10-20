@@ -1,3 +1,4 @@
+import { testAccountCookie } from '../tools/test-account.js';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -108,7 +109,8 @@ test('HTTP contract validates requests, requires bearer token, and restores chec
   const { app } = await buildApp(db, { clock });
   try {
     assert.equal((await app.inject({ method: 'GET', url: '/session' })).statusCode, 401);
-    const created = (await app.inject({ method: 'POST', url: '/sessions', payload: {} })).json();
+    const cookie = await testAccountCookie(app);
+    const created = (await app.inject({ method: 'POST', url: '/sessions', headers: { cookie }, payload: {} })).json();
     const headers = { authorization: `Bearer ${created.token}` };
     const state = { intent: 'book', serviceId: 'consultation', date: '2026-10-21', offeredSlots: ['2026-10-21T09:00:00+05:30'] };
     assert.equal((await app.inject({ method: 'PATCH', url: '/session', headers, payload: { version: 0, state } })).statusCode, 200);

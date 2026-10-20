@@ -39,7 +39,7 @@ export class BookingService {
   }
   async session(token: string, tx: Queryable = this.db, lock = false): Promise<Session> {
     const row = (await tx.query<Session>(
-      `SELECT version, state, expires_at FROM sessions WHERE token_hash=$1 ${lock ? 'FOR UPDATE' : ''}`, [tokenHash(token)])).rows[0];
+      `SELECT version, state, expires_at FROM sessions WHERE token_hash=$1 AND (auth_session_hash IS NULL OR EXISTS (SELECT 1 FROM auth_sessions WHERE auth_sessions.token_hash=sessions.auth_session_hash AND auth_sessions.expires_at > now())) ${lock ? 'FOR UPDATE' : ''}`, [tokenHash(token)])).rows[0];
     if (!row || new Date(row.expires_at).getTime() <= this.clock().toMillis()) throw new Outcome('session_expired', 401);
     return row;
   }

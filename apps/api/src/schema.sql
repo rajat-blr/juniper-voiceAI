@@ -58,3 +58,23 @@ CREATE TABLE IF NOT EXISTS voice_requests (
   created_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS voice_requests_created_at ON voice_requests(created_at);
+
+CREATE TABLE IF NOT EXISTS users (
+  id text PRIMARY KEY,
+  username text NOT NULL UNIQUE,
+  password_hash text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS auth_sessions (
+  token_hash text PRIMARY KEY,
+  user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS auth_sessions_user_id ON auth_sessions(user_id);
+CREATE TABLE IF NOT EXISTS auth_attempts (
+  key text PRIMARY KEY,
+  attempts integer NOT NULL,
+  window_start timestamptz NOT NULL
+);
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS auth_session_hash text;

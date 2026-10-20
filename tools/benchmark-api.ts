@@ -1,3 +1,4 @@
+import { testAccountCookie } from './test-account.js';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -14,12 +15,13 @@ export async function benchmarkApi(options: { samples?: number; warmups?: number
   if (!Number.isInteger(samples) || samples < 1 || samples > 1000 || !Number.isInteger(warmups) || warmups < 0 || warmups > 100) throw new Error('invalid_samples');
   const db = await openDatabase();
   const { app } = await buildApp(db);
+  const cookie = await testAccountCookie(app);
   const timings: Record<string, number[]> = { booking: [], reschedule: [], idempotent_retry: [] };
   let address = '';
   try {
     if (transport === 'http') address = await app.listen({ host: '127.0.0.1', port: 0 });
     async function request<T>(method: 'GET' | 'POST' | 'PATCH', path: string, token = '', payload?: unknown): Promise<T> {
-      const headers = { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) };
+      const headers = { cookie, 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) };
       if (transport === 'inject') {
         const response = await app.inject({ method, url: path, headers, ...(payload === undefined ? {} : { payload: JSON.stringify(payload) }) });
         if (response.statusCode >= 400) throw new Error(response.json().status);

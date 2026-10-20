@@ -174,3 +174,13 @@ footer { display: flex; justify-content: space-between; gap: 18px; padding: 32px
   .voice-active .orb span { animation: none; }
   button { transition: none; }
 }
+
+.auth-page { display: flex; justify-content: center; padding-top: 55px; padding-bottom: 55px; }
+.auth-card { width: 100%; max-width: 460px; padding: 36px; }
+.auth-card h1 { font-size: clamp(48px, 8vw, 64px); letter-spacing: -2px; }
+.auth-card > p { margin-bottom: 25px; }
+.auth-help { display: block; margin: -8px 0 22px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.account-menu { display: flex; align-items: center; gap: 16px; font-size: 12px; }
+.account-menu > span { max-width: 150px; overflow-wrap: anywhere; }
+.account-menu .text-button { padding: 0; }
+@media (max-width: 440px) { .auth-card { padding: 24px; } .auth-page { padding-top: 30px; } .account-menu { gap: 10px; } .account-menu > span { max-width: 100px; } }

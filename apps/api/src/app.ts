@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import { registerAuth } from './auth.js';
 import { z } from 'zod';
 import { BookingService, Outcome } from './booking.js';
 import type { Database } from './db.js';
@@ -24,7 +25,7 @@ const writeSchema = z.object({
   serviceId: z.string().max(80).optional(), visitorName: z.string().trim().min(1).max(80).optional(),
 }).strict();
 
-export async function buildApp(db: Database, options: { timezone?: string; ttlHours?: number; clock?: BookingService['clock']; origin?: string | false; voice?: Parameters<typeof registerVoice>[2] } = {}) {
+export async function buildApp(db: Database, options: { secureCookies?: boolean; timezone?: string; ttlHours?: number; clock?: BookingService['clock']; origin?: string | false; voice?: Parameters<typeof registerVoice>[2] } = {}) {
   const service = new BookingService(db, options.timezone, options.ttlHours, options.clock);
   const app = Fastify({ logger: false, bodyLimit: 32_768 });
   await app.register(cors, { origin: options.origin ?? process.env.WEB_ORIGIN ?? 'http://127.0.0.1:5173' });
@@ -58,7 +59,14 @@ export async function buildApp(db: Database, options: { timezone?: string; ttlHo
     }
     return { timezone: service.timezone, slots: await service.slots(query.serviceId, query.date, query.reference) };
   });
-  app.post('/sessions', async (_request, reply) => reply.code(201).send(await service.createSession()));
+  const auth = registerAuth(app, db, options.secureCookies);
+  app.post('/sessions', async (request, reply) => {
+    const user = await auth.requireUser(request);
+    const created = await service.createSession();
+    const { tokenHash } = await import('./booking.js');
+    await db.query('UPDATE sessions SET auth_session_hash=$1 WHERE token_hash=$2', [user.session_hash, tokenHash(created.token)]);
+    return reply.code(201).send(created);
+  });
   // Tokens travel in Authorization headers rather than URLs, to avoid access-log leaks.
   app.get('/session', async (request) => service.session(token(request.headers)));
   app.patch('/session', async (request) => {

@@ -27,7 +27,7 @@ export async function createRuntimeApplication(env: NodeJS.ProcessEnv = process.
     migrate: !config.serverless, requireTLS: config.serverless });
   try {
     const secret = config.secret ?? (config.serverless ? 'voice-disabled' : await agentSecret());
-    const { app } = await buildApp(db, { timezone: config.timezone, ttlHours: config.ttlHours,
+    const { app } = await buildApp(db, { secureCookies: config.serverless || env.NODE_ENV === 'production', timezone: config.timezone, ttlHours: config.ttlHours,
       origin: config.serverless ? false : env.WEB_ORIGIN ?? 'http://127.0.0.1:5173',
       voice: { secret, enabled: config.voiceEnabled, limits: config.limits,
         receptionistTimeoutSeconds: config.serverless ? 90 : 30,

@@ -1,3 +1,4 @@
+import { testAccountCookie } from '../tools/test-account.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TokenVerifier } from 'livekit-server-sdk';
@@ -11,7 +12,8 @@ test('voice grants are short-lived and room-scoped; handoff is one-use and authe
   const livekit = { url: 'wss://test.livekit.cloud', apiKey: 'test-key', apiSecret: 'test-secret-with-enough-length-for-testing' };
   const { app } = await buildApp(db, { voice: { secret, livekit, clock: () => now } });
   try {
-    const session = (await app.inject({ method: 'POST', url: '/sessions', payload: {} })).json();
+    const cookie = await testAccountCookie(app);
+    const session = (await app.inject({ method: 'POST', url: '/sessions', headers: { cookie }, payload: {} })).json();
     const headers = { authorization: `Bearer ${session.token}` };
     assert.equal((await app.inject({ method: 'POST', url: '/voice/connect', payload: {} })).statusCode, 401);
     const response = await app.inject({ method: 'POST', url: '/voice/connect', headers, payload: {} });
@@ -44,7 +46,8 @@ test('missing LiveKit config fails without issuing credentials', async () => {
   const db = await openDatabase();
   const { app } = await buildApp(db, { voice: { secret: 'test', livekit: { url: '', apiKey: '', apiSecret: '' } } });
   try {
-    const session = (await app.inject({ method: 'POST', url: '/sessions', payload: {} })).json();
+    const cookie = await testAccountCookie(app);
+    const session = (await app.inject({ method: 'POST', url: '/sessions', headers: { cookie }, payload: {} })).json();
     const config = (await app.inject({ method: 'GET', url: '/voice/config' })).json();
     assert.equal(config.ready, false);
     assert.deepEqual(config.missing, ['LIVEKIT_URL', 'LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET']);

@@ -1,3 +1,4 @@
+import { testAccountCookie } from '../tools/test-account.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -12,6 +13,7 @@ async function fixture() {
   const db = await openDatabase();
   let now = DateTime.fromISO('2026-10-12T00:00:00Z');
   const { app } = await buildApp(db, { clock: () => now });
+  const cookie = await testAccountCookie(app);
   let token = ''; let expirations = 0; let loseResponse = false;
   const calls: string[] = [];
   const send: typeof fetch = async (input, init) => {
@@ -19,7 +21,7 @@ async function fixture() {
     const headers: Record<string, string> = {};
     new Headers(init?.headers).forEach((value, key) => { headers[key] = value; });
     const response = await app.inject({ method: init?.method as 'GET' | 'POST' | 'PATCH', url: url.slice(4),
-      headers,
+      headers: { ...headers, cookie },
       ...(init?.body === undefined ? {} : { payload: String(init.body) }) });
     if (url === '/api/bookings' && loseResponse) { loseResponse = false; throw new Error('Lost committed response'); }
     return new Response(response.body, { status: response.statusCode, headers: { 'content-type': 'application/json' } });
